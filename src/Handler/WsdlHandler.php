@@ -14,46 +14,49 @@ use RuntimeException;
 class WsdlHandler
 {
     private SoapProxyRequest $request;
-
     private WsdlCache $cache;
-
     private LoggerInterface $logger;
 
     public function __construct(
         SoapProxyRequest $request,
         LoggerInterface $logger,
-        ?WsdlCache $cache = null
+        WsdlCache $cache
     ) {
         $this->request = $request;
         $this->logger = $logger;
-        $this->cache = $cache ?? new WsdlCache(sys_get_temp_dir() . '/wsdl_cache', $logger);
+        $this->cache = $cache;
     }
 
     public function handle(): void
     {
         $targetUrl = $this->request->getTargetUrl();
+        $this->logger->debug('Handling WSDL request', ['target_url' => $targetUrl]);
 
         // Try to load WSDL from cache
         $wsdlContent = $this->cache->getCached($targetUrl);
 
         if ($wsdlContent === null) {
-            // Not in cache or expired - fetch fresh WSDL
-            $credentials = $this->request->getCredentials();
-
-            $curl = new CurlClient($targetUrl, $this->logger);
-            $curl->setOptions([
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_SSL_VERIFYHOST => false,
-                CURLOPT_USERPWD => $credentials['user'] . ':' . $credentials['pass'],
-                CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-                CURLOPT_HTTPHEADER => ['Accept: application/xml, text/xml, */*'],
-            ]);
-
             try {
-                $wsdlContent = $curl->execute();
+                $credentials = $this->request->getCredentials();
+                $this->logger->debug('Using credentials', [
+                    'username' => $credentials['user'],
+                    'has_password' => !empty($credentials['pass'])
+                ]);
 
-                if ($curl->getHttpCode() !== 200 || ! $this->isValidWsdl($wsdlContent)) {
+                $curl = new CurlClient($targetUrl, $this->logger);
+                $curl->setOptions([
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => false,
+                    CURLOPT_USERPWD => $credentials['user'] . ':' . $credentials['pass'],
+                    CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+                    CURLOPT_HTTPHEADER => ['Accept: application/xml, text/xml, */*']
+                ]);
+
+                $wsdlContent = $curl->execute();
+                $httpCode = $curl->getHttpCode();
+
+                if ($httpCode !== 200 || !$this->isValidWsdl($wsdlContent)) {
                     throw new RuntimeException('Failed to fetch valid WSDL');
                 }
 
@@ -62,7 +65,9 @@ class WsdlHandler
                 $this->logger->debug('Fresh WSDL fetched and cached');
 
             } finally {
-                $curl->close();
+                if (isset($curl)) {
+                    $curl->close();
+                }
             }
         }
 
@@ -72,23 +77,20 @@ class WsdlHandler
     private function isValidWsdl(string $content): bool
     {
         $doc = new DOMDocument();
-        if (! @$doc->loadXML($content)) {
+        if (!@$doc->loadXML($content)) {
             return false;
         }
 
-        // Check if it's a WSDL document
         $definitions = $doc->getElementsByTagNameNS('http://schemas.xmlsoap.org/wsdl/', 'definitions');
-
         return $definitions->length > 0;
     }
 
     private function sendResponse(string $content): void
     {
-        if (! headers_sent()) {
+        if (!headers_sent()) {
             header_remove();
             header('Content-Type: application/wsdl+xml; charset=utf-8');
             header('Content-Length: ' . strlen($content));
-            // Cache headers for client
             header('Cache-Control: public, max-age=' . $this->cache::CACHE_TTL);
             header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + $this->cache::CACHE_TTL));
         }
