@@ -2,7 +2,6 @@
   "name": "monosize/soap-proxy",
   "description": "A secure PHP-based SOAP proxy that authenticates and forwards SOAP requests to a target server",
   "type": "library",
-  "version": "1.0.1",
   "license": "MIT",
   "authors": [
     {
