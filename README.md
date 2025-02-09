@@ -26,16 +26,21 @@ use MonoSize\SoapProxy\SoapProxy;
 use Monolog\Logger;
 use Monolog\Handler\RotatingFileHandler;
 
-// Create a logger with file rotation
+$projectRoot = dirname(__DIR__);
+$envPath = $projectRoot;
+$cacheDir = $projectRoot . '/var/cache/wsdl';
+$logFile = $projectRoot . '/var/log/soap-proxy.log';
+
+// Create logger with file rotation
 $logger = new Logger('soap-proxy');
 $logger->pushHandler(new RotatingFileHandler(
-    'soap-proxy.log',
-    30  // Keep 30 days of logs
+    $logFile,
+    30
 ));
 
 // Create a proxy from environment variables
 // Log level will be automatically set based on PROXYDEBUG environment variable
-$proxy = SoapProxy::createFromEnv($logger);
+$proxy = SoapProxy::createFromEnv($logger, $cacheDir, $envPath);
 
 // Process request
 $proxy->handle();
