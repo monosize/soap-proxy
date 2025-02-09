@@ -1,3 +1,8 @@
+## [1.0.6] - 2025-02-09
+
+### Changes
+- Integrate Environment configuration into cURL and handlers Frank Rakow Moments ago
+
 ## [1.0.5] - 2025-02-09
 
 ### Changes
