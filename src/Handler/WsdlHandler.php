@@ -6,6 +6,7 @@ namespace MonoSize\SoapProxy\Handler;
 
 use DOMDocument;
 use MonoSize\SoapProxy\Cache\WsdlCache;
+use MonoSize\SoapProxy\Config\Environment;
 use MonoSize\SoapProxy\Http\CurlClient;
 use MonoSize\SoapProxy\Request\SoapProxyRequest;
 use Psr\Log\LoggerInterface;
@@ -19,14 +20,18 @@ class WsdlHandler
 
     private LoggerInterface $logger;
 
+    private Environment $environment;
+
     public function __construct(
         SoapProxyRequest $request,
         LoggerInterface $logger,
-        WsdlCache $cache
+        WsdlCache $cache,
+        Environment $environment
     ) {
         $this->request = $request;
         $this->logger = $logger;
         $this->cache = $cache;
+        $this->environment = $environment;
     }
 
     public function handle(): void
@@ -45,11 +50,9 @@ class WsdlHandler
                     'has_password' => ! empty($credentials['pass']),
                 ]);
 
-                $curl = new CurlClient($targetUrl, $this->logger);
+                $curl = new CurlClient($targetUrl, $this->logger, $this->environment);
                 $curl->setOptions([
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_SSL_VERIFYPEER => false,
-                    CURLOPT_SSL_VERIFYHOST => false,
                     CURLOPT_USERPWD => $credentials['user'] . ':' . $credentials['pass'],
                     CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
                     CURLOPT_HTTPHEADER => ['Accept: application/xml, text/xml, */*'],

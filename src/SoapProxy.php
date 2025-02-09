@@ -16,22 +16,22 @@ use RuntimeException;
 class SoapProxy
 {
     private LoggerInterface $logger;
-
     private string $targetHost;
-
     private bool $debug;
-
     private WsdlCache $cache;
+    private Environment $environment;
 
     public function __construct(
         LoggerInterface $logger,
         string $targetHost,
         WsdlCache $cache,
+        Environment $environment,
         bool $debug = false
     ) {
         $this->logger = $logger;
         $this->targetHost = $targetHost;
         $this->cache = $cache;
+        $this->environment = $environment;
         $this->debug = $debug;
     }
 
@@ -41,10 +41,19 @@ class SoapProxy
             $request = new SoapProxyRequest($this->targetHost);
 
             if ($request->isWsdl()) {
-                $handler = new WsdlHandler($request, $this->logger, $this->cache);
+                $handler = new WsdlHandler(
+                    $request,
+                    $this->logger,
+                    $this->cache,
+                    $this->environment
+                );
                 $handler->handle();
             } else {
-                $handler = new SoapHandler($request, $this->logger);
+                $handler = new SoapHandler(
+                    $request,
+                    $this->logger,
+                    $this->environment
+                );
                 $handler->handle();
             }
         } catch (\Throwable $e) {
@@ -59,7 +68,7 @@ class SoapProxy
             'trace' => $e->getTraceAsString(),
         ]);
 
-        if (! headers_sent()) {
+        if (!headers_sent()) {
             header('HTTP/1.1 500 Internal Server Error');
             header('Content-Type: text/plain; charset=utf-8');
         }
@@ -97,6 +106,7 @@ class SoapProxy
             $logger,
             $targetHost,
             $cache,
+            $env,
             $debugMode
         );
     }

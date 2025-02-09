@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MonoSize\SoapProxy\Http;
 
+use MonoSize\SoapProxy\Config\Environment;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -15,21 +16,28 @@ class CurlClient
 
     private LoggerInterface $logger;
 
-    private array $defaultOptions = [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
-        CURLOPT_TCP_KEEPALIVE => 1,
-        CURLOPT_TCP_KEEPIDLE => 60,
-        CURLOPT_TCP_KEEPINTVL => 60,
-        CURLOPT_FORBID_REUSE => false,
-        CURLOPT_FRESH_CONNECT => false,
-    ];
+    private Environment $environment;
 
-    public function __construct(string $url, LoggerInterface $logger)
+    private array $defaultOptions;
+
+    public function __construct(string $url, LoggerInterface $logger, Environment $environment)
     {
         $this->url = $url;
         $this->logger = $logger;
+        $this->environment = $environment;
+
+        // Initialize default options with environment-based SSL verification
+        $this->defaultOptions = [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => filter_var($this->environment->get('SSL_VERIFY_PEER', 'false'), FILTER_VALIDATE_BOOLEAN),
+            CURLOPT_SSL_VERIFYHOST => filter_var($this->environment->get('SSL_VERIFY_HOST', 'false'), FILTER_VALIDATE_BOOLEAN) ? 2 : 0,
+            CURLOPT_TCP_KEEPALIVE => 1,
+            CURLOPT_TCP_KEEPIDLE => 60,
+            CURLOPT_TCP_KEEPINTVL => 60,
+            CURLOPT_FORBID_REUSE => false,
+            CURLOPT_FRESH_CONNECT => false,
+        ];
+
         $host = parse_url($url, PHP_URL_HOST);
 
         // Try to reuse existing connection
@@ -42,6 +50,12 @@ class CurlClient
             $this->handle = curl_init($url);
             curl_setopt_array($this->handle, $this->defaultOptions);
         }
+
+        $this->logger->debug('Initialized cURL client', [
+            'url' => $url,
+            'ssl_verify_peer' => $this->defaultOptions[CURLOPT_SSL_VERIFYPEER],
+            'ssl_verify_host' => $this->defaultOptions[CURLOPT_SSL_VERIFYHOST],
+        ]);
     }
 
     public function setOptions(array $options): self
@@ -50,6 +64,10 @@ class CurlClient
             $options[CURLOPT_HTTPHEADER] = [];
         }
         $options[CURLOPT_HTTPHEADER][] = 'Connection: keep-alive';
+
+        // Ensure SSL verification settings from environment are not overridden
+        unset($options[CURLOPT_SSL_VERIFYPEER]);
+        unset($options[CURLOPT_SSL_VERIFYHOST]);
 
         // Set options directly without modification
         curl_setopt_array($this->handle, $options);

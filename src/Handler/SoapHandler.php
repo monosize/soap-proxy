@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MonoSize\SoapProxy\Handler;
 
 use DOMDocument;
+use MonoSize\SoapProxy\Config\Environment;
 use MonoSize\SoapProxy\Http\CurlClient;
 use MonoSize\SoapProxy\Request\SoapProxyRequest;
 use Psr\Log\LoggerInterface;
@@ -16,10 +17,16 @@ class SoapHandler
 
     private LoggerInterface $logger;
 
-    public function __construct(SoapProxyRequest $request, LoggerInterface $logger)
-    {
+    private Environment $environment;
+
+    public function __construct(
+        SoapProxyRequest $request,
+        LoggerInterface $logger,
+        Environment $environment
+    ) {
         $this->request = $request;
         $this->logger = $logger;
+        $this->environment = $environment;
     }
 
     public function handle(): void
@@ -32,7 +39,7 @@ class SoapHandler
 
         $credentials = $this->request->getCredentials();
 
-        $curl = new CurlClient($this->request->getTargetUrl(), $this->logger);
+        $curl = new CurlClient($this->request->getTargetUrl(), $this->logger, $this->environment);
         $curl->setOptions([
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
@@ -42,8 +49,6 @@ class SoapHandler
                 'Authorization: Basic ' . base64_encode($credentials['user'] . ':' . $credentials['pass']),
                 'SOAPAction: ' . $soapAction,
             ],
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
         ]);
 
         try {
