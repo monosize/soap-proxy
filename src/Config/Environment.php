@@ -10,15 +10,18 @@ class Environment
 {
     private array $env = [];
 
-    public function __construct()
+    public function __construct(?string $envPath = null)
     {
-        $this->loadDotEnv();
+        $this->loadDotEnv($envPath);
     }
 
-    private function loadDotEnv(): void
+    private function loadDotEnv(?string $envPath = null): void
     {
         if (class_exists('\Dotenv\Dotenv')) {
-            $dotenv = \Dotenv\Dotenv::createImmutable(getcwd());
+            // Use provided path or default to parent directory
+            $path = $envPath ?? dirname(getcwd());
+
+            $dotenv = \Dotenv\Dotenv::createImmutable($path);
 
             try {
                 $dotenv->load();
