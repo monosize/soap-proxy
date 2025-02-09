@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace MonoSize\SoapProxy;
 
+use Monolog\Level;
+use MonoSize\SoapProxy\Cache\WsdlCache;
 use MonoSize\SoapProxy\Config\Environment;
 use MonoSize\SoapProxy\Handler\SoapHandler;
 use MonoSize\SoapProxy\Handler\WsdlHandler;
 use MonoSize\SoapProxy\Request\SoapProxyRequest;
-use MonoSize\SoapProxy\Cache\WsdlCache;
-use Monolog\Level;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class SoapProxy
 {
     private LoggerInterface $logger;
+
     private string $targetHost;
+
     private bool $debug;
+
     private WsdlCache $cache;
 
     public function __construct(
@@ -56,7 +59,7 @@ class SoapProxy
             'trace' => $e->getTraceAsString(),
         ]);
 
-        if (!headers_sent()) {
+        if (! headers_sent()) {
             header('HTTP/1.1 500 Internal Server Error');
             header('Content-Type: text/plain; charset=utf-8');
         }
@@ -80,9 +83,11 @@ class SoapProxy
 
         $debugMode = $env->get('PROXYDEBUG', '0') === '1';
         // Set log level based on PROXYDEBUG
-        if ($logger instanceof LoggerInterface) {
+        if ($logger instanceof \Monolog\Logger) {
             foreach ($logger->getHandlers() as $handler) {
-                $handler->setLevel($debugMode ? Level::Debug : Level::Debug);
+                if ($handler instanceof \Monolog\Handler\AbstractProcessingHandler) {
+                    $handler->setLevel($debugMode ? Level::Debug : Level::Info);
+                }
             }
         }
 
