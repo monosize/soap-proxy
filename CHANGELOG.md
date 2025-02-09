@@ -1,3 +1,9 @@
+## [1.0.7] - 2025-02-09
+
+### Changes
+- Remove WSDL cache configuration from documentation 
+- Remove outdated development documentation 
+
 ## [1.0.6] - 2025-02-09
 
 ### Changes
@@ -6,31 +12,31 @@
 ## [1.0.5] - 2025-02-09
 
 ### Changes
-- Refactor logging and header handling in SoapProxy Frank Rakow A minute ago
-- Improve cURL handling and add response type assertion Frank Rakow 2 minutes ago
-- Refactor code style and improve WSDL validation handling Frank Rakow 2 minutes ago
-- Update docs and README Frank Rakow 10 minutes ago
+- Refactor logging and header handling in SoapProxy 
+- Improve cURL handling and add response type assertion
+- Refactor code style and improve WSDL validation handling 
+- Update docs and README 
 
 ## [1.0.4] - 2025-02-09
 
 ### Changes
-- Remove custom Logger implementation. Frank Rakow Moments ago
-- Adjust logging levels based on PROXYDEBUG environment variable Frank Rakow Moments ago
+- Remove custom Logger implementation. 
+- Adjust logging levels based on PROXYDEBUG environment variable 
 
 ## [1.0.3] - 2025-02-09
 
 ### Changes
-- Refactor SOAP proxy initialization with defined paths. Frank Rakow A minute ago
-- Refactor SoapProxy to support WSDL caching and improve naming Frank Rakow A minute ago
-- Improve WSDL handler logging and error handling Frank Rakow A minute ago
-- Refactor CurlClient to improve logging and error handling. Frank Rakow A minute ago
-- Refactor dotenv loading to support custom paths Frank Rakow 2 minutes ago
+- Refactor SOAP proxy initialization with defined paths.
+- Refactor SoapProxy to support WSDL caching and improve naming 
+- Improve WSDL handler logging and error handling 
+- Refactor CurlClient to improve logging and error handling.
+- Refactor dotenv loading to support custom paths 
 
 ## [1.0.2] - 2025-02-09
 
 ### Changes
-- Remove unused StreamHandler and update composer dependencies Frank Rakow 6 minutes ago
-- Fix typo in Environment.php filename Frank Rakow 6 minutes ago
+- Remove unused StreamHandler and update composer dependencies o
+- Fix typo in Environment.php filename 
 
 ## [1.0.1] - 2025-02-09
 
