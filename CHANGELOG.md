@@ -1,8 +1,15 @@
+## [1.0.9] - 2025-02-09
+
+### Changes
+- Remove unused logging and cache configuration from .env.example 
+- Remove deprecated WSDL caching documentation.
+- Simplify contribution section in README.md.
+
 ## [1.0.8] - 2025-02-09
 
 ### Changes
 - Add SSL verification support to WsdlHandler tests 
--  Update Readme's
+- Update Readme's
 
 ## [1.0.7] - 2025-02-09
 
