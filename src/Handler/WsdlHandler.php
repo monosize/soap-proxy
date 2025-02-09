@@ -14,7 +14,9 @@ use RuntimeException;
 class WsdlHandler
 {
     private SoapProxyRequest $request;
+
     private WsdlCache $cache;
+
     private LoggerInterface $logger;
 
     public function __construct(
@@ -40,7 +42,7 @@ class WsdlHandler
                 $credentials = $this->request->getCredentials();
                 $this->logger->debug('Using credentials', [
                     'username' => $credentials['user'],
-                    'has_password' => !empty($credentials['pass'])
+                    'has_password' => ! empty($credentials['pass']),
                 ]);
 
                 $curl = new CurlClient($targetUrl, $this->logger);
@@ -50,13 +52,13 @@ class WsdlHandler
                     CURLOPT_SSL_VERIFYHOST => false,
                     CURLOPT_USERPWD => $credentials['user'] . ':' . $credentials['pass'],
                     CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-                    CURLOPT_HTTPHEADER => ['Accept: application/xml, text/xml, */*']
+                    CURLOPT_HTTPHEADER => ['Accept: application/xml, text/xml, */*'],
                 ]);
 
                 $wsdlContent = $curl->execute();
                 $httpCode = $curl->getHttpCode();
 
-                if ($httpCode !== 200 || !$this->isValidWsdl($wsdlContent)) {
+                if ($httpCode !== 200 || ! $this->isValidWsdl($wsdlContent)) {
                     throw new RuntimeException('Failed to fetch valid WSDL');
                 }
 
@@ -77,17 +79,18 @@ class WsdlHandler
     private function isValidWsdl(string $content): bool
     {
         $doc = new DOMDocument();
-        if (!@$doc->loadXML($content)) {
+        if (! @$doc->loadXML($content)) {
             return false;
         }
 
         $definitions = $doc->getElementsByTagNameNS('http://schemas.xmlsoap.org/wsdl/', 'definitions');
+
         return $definitions->length > 0;
     }
 
     private function sendResponse(string $content): void
     {
-        if (!headers_sent()) {
+        if (! headers_sent()) {
             header_remove();
             header('Content-Type: application/wsdl+xml; charset=utf-8');
             header('Content-Length: ' . strlen($content));
