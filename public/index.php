@@ -6,7 +6,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use MonoSize\SoapProxy\SoapProxy;
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
 use Monolog\Handler\RotatingFileHandler;
 
 // Create logger with file rotation
