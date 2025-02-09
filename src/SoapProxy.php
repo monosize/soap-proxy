@@ -8,48 +8,46 @@ use MonoSize\SoapProxy\Config\Environment;
 use MonoSize\SoapProxy\Handler\SoapHandler;
 use MonoSize\SoapProxy\Handler\WsdlHandler;
 use MonoSize\SoapProxy\Request\SoapProxyRequest;
+use MonoSize\SoapProxy\Cache\WsdlCache;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class SoapProxy
 {
     private LoggerInterface $logger;
-
-    private string $transferHost;
-
+    private string $targetHost;
     private bool $debug;
+    private WsdlCache $cache;
 
     public function __construct(
         LoggerInterface $logger,
-        string $transferHost,
+        string $targetHost,
+        WsdlCache $cache,
         bool $debug = false
     ) {
         $this->logger = $logger;
-        $this->transferHost = $transferHost;
+        $this->targetHost = $targetHost;
+        $this->cache = $cache;
         $this->debug = $debug;
     }
 
-    /**
-     * Handle incoming SOAP request
-     */
     public function handle(): void
     {
         try {
-            $request = new SoapProxyRequest($this->transferHost);
+            $request = new SoapProxyRequest($this->targetHost);
 
             if ($request->isWsdl()) {
-                (new WsdlHandler($request, $this->logger))->handle();
+                $handler = new WsdlHandler($request, $this->logger, $this->cache);
+                $handler->handle();
             } else {
-                (new SoapHandler($request, $this->logger))->handle();
+                $handler = new SoapHandler($request, $this->logger);
+                $handler->handle();
             }
         } catch (\Throwable $e) {
             $this->handleError($e);
         }
     }
 
-    /**
-     * Handle errors and return appropriate response
-     */
     private function handleError(\Throwable $e): void
     {
         $this->logger->error('SOAP Proxy Error', [
@@ -57,7 +55,7 @@ class SoapProxy
             'trace' => $e->getTraceAsString(),
         ]);
 
-        if (! headers_sent()) {
+        if (!headers_sent()) {
             header('HTTP/1.1 500 Internal Server Error');
             header('Content-Type: text/plain; charset=utf-8');
         }
@@ -70,21 +68,21 @@ class SoapProxy
         }
     }
 
-    /**
-     * Create instance from environment configuration
-     */
-    public static function createFromEnv(LoggerInterface $logger): self
+    public static function createFromEnv(LoggerInterface $logger, string $cacheDir, ?string $envPath = null): self
     {
-        $env = new Environment();
-        $transferHost = $env->get('TRANSFERHOST');
+        $env = new Environment($envPath);
+        $targetHost = $env->get('TRANSFERHOST');
 
-        if (empty($transferHost)) {
+        if (empty($targetHost)) {
             throw new RuntimeException('TRANSFERHOST environment variable must be set');
         }
 
+        $cache = new WsdlCache($cacheDir, $logger);
+
         return new self(
             $logger,
-            $transferHost,
+            $targetHost,
+            $cache,
             $env->get('PROXYDEBUG', '0') === '1'
         );
     }
