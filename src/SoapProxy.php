@@ -9,6 +9,7 @@ use MonoSize\SoapProxy\Handler\SoapHandler;
 use MonoSize\SoapProxy\Handler\WsdlHandler;
 use MonoSize\SoapProxy\Request\SoapProxyRequest;
 use MonoSize\SoapProxy\Cache\WsdlCache;
+use Monolog\Level;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -77,13 +78,21 @@ class SoapProxy
             throw new RuntimeException('TRANSFERHOST environment variable must be set');
         }
 
+        $debugMode = $env->get('PROXYDEBUG', '0') === '1';
+        // Set log level based on PROXYDEBUG
+        if ($logger instanceof LoggerInterface) {
+            foreach ($logger->getHandlers() as $handler) {
+                $handler->setLevel($debugMode ? Level::Debug : Level::Debug);
+            }
+        }
+
         $cache = new WsdlCache($cacheDir, $logger);
 
         return new self(
             $logger,
             $targetHost,
             $cache,
-            $env->get('PROXYDEBUG', '0') === '1'
+            $debugMode
         );
     }
 }

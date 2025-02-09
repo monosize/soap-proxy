@@ -18,10 +18,8 @@ $logFile = $projectRoot . '/var/log/soap-proxy.log';
 $logger = new Logger('soap-proxy');
 $logger->pushHandler(new RotatingFileHandler(
     $logFile,
-    30, // Keep 30 days of logs
-    Logger::DEBUG
+    30
 ));
-
 try {
     // Create and configure SOAP proxy
     $proxy = SoapProxy::createFromEnv($logger, $cacheDir, $envPath);
