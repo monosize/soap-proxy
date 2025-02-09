@@ -1,0 +1,49 @@
+{
+  "name": "monosize/soap-proxy",
+  "description": "A secure PHP-based SOAP proxy that authenticates and forwards SOAP requests to a target server",
+  "type": "library",
+  "version": "1.0.1",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Frank Rakow",
+      "email": "frank.rakow@gestalten.de"
+    }
+  ],
+  "require": {
+    "php": ">=8.2",
+    "ext-curl": "*",
+    "ext-dom": "*",
+    "ext-xml": "*",
+    "psr/log": "^3.0",
+    "vlucas/phpdotenv": "^5.6"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.0",
+    "friendsofphp/php-cs-fixer": "^3.0",
+    "vimeo/psalm": "^5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "MonoSize\\SoapProxy\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MonoSize\\SoapProxy\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit",
+    "cs-fix": "php-cs-fixer fix",
+    "psalm": "psalm",
+    "check": [
+      "@cs-fix",
+      "@psalm",
+      "@test"
+    ]
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
