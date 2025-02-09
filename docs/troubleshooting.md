@@ -99,13 +99,14 @@ libxml_set_streams_context(stream_context_create([
 
 ## Enable Debug Mode
 
-1. In .env file:
+In .env file:
 ```env
 PROXYDEBUG=1
-LOG_LEVEL=debug
 ```
+This will automatically set the log level to DEBUG. When PROXYDEBUG=0, only errors will be logged.
+Check log output:
 
-2. Check log output:
+Check log output:
 ```bash
 tail -f logs/soap-proxy.log
 ```

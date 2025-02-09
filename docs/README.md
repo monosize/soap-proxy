@@ -13,13 +13,14 @@ Simple usage:
 ```php
 use MonoSize\SoapProxy\SoapProxy;
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
+use Monolog\Handler\RotatingFileHandler;
 
 // Create logger
 $logger = new Logger('soap-proxy');
-$logger->pushHandler(new StreamHandler('soap-proxy.log', Logger::DEBUG));
+$logger->pushHandler(new RotatingFileHandler('soap-proxy.log', 30));  // Keep 30 days of logs
 
 // Create proxy from environment variables
+// Log level will be automatically set based on PROXYDEBUG environment variable
 $proxy = SoapProxy::createFromEnv($logger);
 
 // Process request
@@ -31,7 +32,7 @@ $proxy->handle();
 - Authenticated SOAP request proxying
 - WSDL caching for better performance
 - Connection pooling for stable connections
-- PSR-3 compliant logging
+- PSR-3 compliant logging with automatic debug mode control
 - Comprehensive error handling
 - Support for SOAP 1.1 and 1.2
 

@@ -5,12 +5,11 @@ The library is primarily configured using a `.env` file:
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | TRANSFERHOST | URL of the target SOAP server | - | Yes |
-| PROXYDEBUG | Enable debug logging (0/1) | 0 | No |
+| PROXYDEBUG | Enable debug mode (0/1) | 0 | No |
 
 ### Optional Settings
 | Variable | Description | Default |
 |----------|-------------|---------|
-| LOG_LEVEL | Log level (debug/info/error) | error |
 | WSDL_CACHE_DIR | WSDL cache directory | system temp |
 | WSDL_CACHE_TTL | Cache validity in seconds | 3600 |
 | SSL_VERIFY_PEER | Verify SSL peer | false |
@@ -21,9 +20,7 @@ The library is primarily configured using a `.env` file:
 # Required settings
 TRANSFERHOST=https://target-soap-server.com
 PROXYDEBUG=0
-# Logging
-LOG_LEVEL=error
-LOG_PATH=/path/to/logs
+
 # Cache
 WSDL_CACHE_DIR=/path/to/wsdl_cache
 WSDL_CACHE_TTL=3600
@@ -33,23 +30,21 @@ SSL_VERIFY_HOST=false
 ```
 
 ## Configure Logger
-The library uses PSR-3 compatible loggers. Example with Monolog:
+The library uses PSR-3 compatible loggers. The log level is automatically controlled by the PROXYDEBUG environment variable. When PROXYDEBUG=1, all debug messages are logged. When PROXYDEBUG=0, only errors are logged.
+
+Example with Monolog:
 ```php
 use Monolog\Logger;
 use Monolog\Handler\RotatingFileHandler;
-use Monolog\Handler\StreamHandler;
 
 $logger = new Logger('soap-proxy');
-// File handler with rotation
 $logger->pushHandler(new RotatingFileHandler(
     'logs/soap-proxy.log',
-    30,  // Keep logs for 30 days
-    Logger::DEBUG
+    30  // Keep logs for 30 days
 ));
-// Stdout handler for development
-if (getenv('APP_ENV') === 'development') {
-    $logger->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-}
+
+// Log level will be automatically set based on PROXYDEBUG environment variable
+$proxy = SoapProxy::createFromEnv($logger, $cacheDir);
 ```
 
 ## Web Server Configuration

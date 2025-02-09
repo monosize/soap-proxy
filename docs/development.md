@@ -22,8 +22,7 @@ composer install
 cp .env.example .env.development
 
 # Adjust development settings
-PROXYDEBUG=1
-LOG_LEVEL=debug
+PROXYDEBUG=1             # Enables debug logging
 SSL_VERIFY_PEER=false
 SSL_VERIFY_HOST=false
 ```
@@ -103,12 +102,23 @@ use Psr\Log\LogLevel;
 
 class CustomLogger extends AbstractLogger
 {
+    private bool $debug;
+
+    public function __construct(bool $debug = false)
+    {
+        $this->debug = $debug;
+    }
+
     public function log($level, string|\Stringable $message, array $context = []): void
     {
+        // Skip debug messages unless debug mode is enabled
+        if (!$this->debug && $level === LogLevel::DEBUG) {
+            return;
+        }
+
         // Implement your custom logging logic here
     }
-}
-```
+}```
 
 ## Debugging
 

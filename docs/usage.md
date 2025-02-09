@@ -12,14 +12,18 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use MonoSize\SoapProxy\SoapProxy;
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
+use Monolog\Handler\RotatingFileHandler;
 
 // Create logger
 $logger = new Logger('soap-proxy');
-$logger->pushHandler(new StreamHandler('../logs/soap-proxy.log', Logger::DEBUG));
+$logger->pushHandler(new RotatingFileHandler(
+    '../logs/soap-proxy.log',
+    30  // Keep 30 days of logs
+));
 
 try {
     // Create proxy from environment variables
+    // Log level will be automatically set based on PROXYDEBUG environment variable
     $proxy = SoapProxy::createFromEnv($logger);
 
     // Process request
@@ -76,18 +80,14 @@ $logger = new Logger('soap-proxy');
 
 $handler = new RotatingFileHandler(
     '../logs/soap-proxy.log',
-    30,  // Keep for 30 days
-    Logger::DEBUG
+    30  // Keep for 30 days
 );
 $handler->setFormatter(new JsonFormatter());
 $logger->pushHandler($handler);
 
-// Proxy with custom logger
-$proxy = new SoapProxy(
-    $logger,
-    'https://target-soap-server.com',
-    true  // Debug mode
-);
+// Create proxy from environment variables
+// Debug mode will be controlled by PROXYDEBUG environment variable
+$proxy = SoapProxy::createFromEnv($logger);
 ```
 
 ### Error Handling

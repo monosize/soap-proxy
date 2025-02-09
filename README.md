@@ -8,7 +8,7 @@ A secure PHP-based SOAP proxy that authenticates SOAP requests and forwards them
 - Support for SOAP 1.1 and 1.2
 - WSDL caching and forwarding
 - Configurable target servers
-- Debug logging for troubleshooting
+- Automatic debug logging control via PROXYDEBUG
 - Flexible error handling
 - Basic authentication support
 - Connection pooling for improved performance
@@ -24,13 +24,17 @@ composer require monosize/soap-proxy
 ```php
 use MonoSize\SoapProxy\SoapProxy;
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
+use Monolog\Handler\RotatingFileHandler;
 
-// Create a logger
+// Create a logger with file rotation
 $logger = new Logger('soap-proxy');
-$logger->pushHandler(new StreamHandler('soap-proxy.log', Logger::DEBUG));
+$logger->pushHandler(new RotatingFileHandler(
+    'soap-proxy.log',
+    30  // Keep 30 days of logs
+));
 
 // Create a proxy from environment variables
+// Log level will be automatically set based on PROXYDEBUG environment variable
 $proxy = SoapProxy::createFromEnv($logger);
 
 // Process request

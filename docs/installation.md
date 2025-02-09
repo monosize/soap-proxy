@@ -32,10 +32,18 @@ Create the file `public/soap-proxy.php`:
 require_once __DIR__ . '/../vendor/autoload.php';
 use MonoSize\SoapProxy\SoapProxy;
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
+use Monolog\Handler\RotatingFileHandler;
+
+// Create logger with file rotation
 $logger = new Logger('soap-proxy');
-$logger->pushHandler(new StreamHandler('../logs/soap-proxy.log', Logger::DEBUG));
+$logger->pushHandler(new RotatingFileHandler(
+    '../logs/soap-proxy.log',
+    30  // Keep 30 days of logs
+));
+
 try {
+    // Create proxy from environment variables
+    // Log level will be automatically set based on PROXYDEBUG environment variable
     $proxy = SoapProxy::createFromEnv($logger);
     $proxy->handle();
 } catch (Throwable $e) {
@@ -43,7 +51,16 @@ try {
         'message' => $e->getMessage(),
         'trace' => $e->getTraceAsString()
     ]);
-    throw $e;
+    
+    if (getenv('APP_ENV') === 'development') {
+        throw $e;
+    } else {
+        if (!headers_sent()) {
+            header('HTTP/1.1 500 Internal Server Error');
+            header('Content-Type: text/plain; charset=utf-8');
+        }
+        echo "SOAP Proxy Error: An internal error occurred.";
+    }
 }
 ```
 ## Configure Web Server
