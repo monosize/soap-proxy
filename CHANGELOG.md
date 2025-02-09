@@ -1,3 +1,11 @@
+## [1.0.5] - 2025-02-09
+
+### Changes
+- Refactor logging and header handling in SoapProxy Frank Rakow A minute ago
+- Improve cURL handling and add response type assertion Frank Rakow 2 minutes ago
+- Refactor code style and improve WSDL validation handling Frank Rakow 2 minutes ago
+- Update docs and README Frank Rakow 10 minutes ago
+
 ## [1.0.4] - 2025-02-09
 
 ### Changes
