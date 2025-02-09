@@ -10,8 +10,6 @@ The library is primarily configured using a `.env` file:
 ### Optional Settings
 | Variable | Description | Default |
 |----------|-------------|---------|
-| WSDL_CACHE_DIR | WSDL cache directory | system temp |
-| WSDL_CACHE_TTL | Cache validity in seconds | 3600 |
 | SSL_VERIFY_PEER | Verify SSL peer | false |
 | SSL_VERIFY_HOST | Verify SSL host | false |
 
@@ -83,27 +81,10 @@ server {
 ```
 
 ## Performance Optimization
-### WSDL Caching
-```env
-# Optimize cache settings
-WSDL_CACHE_DIR=/tmp/wsdl_cache
-WSDL_CACHE_TTL=86400  # 24 hours
-```
-
-### Connection Pooling
-```env
-# Connection pool settings
-CURL_KEEPALIVE=1
-CURL_KEEPIDLE=60
-CURL_KEEPINTVL=60
-```
 
 ## Security Settings
 ```env
 # Enable SSL validation (for production)
 SSL_VERIFY_PEER=true
 SSL_VERIFY_HOST=true
-# Additional security
-PROXY_TIMEOUT=30
-MAX_REDIRECTS=5
 ```
