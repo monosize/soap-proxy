@@ -21,9 +21,6 @@ The library is primarily configured using a `.env` file:
 TRANSFERHOST=https://target-soap-server.com
 PROXYDEBUG=0
 
-# Cache
-WSDL_CACHE_DIR=/path/to/wsdl_cache
-WSDL_CACHE_TTL=3600
 # SSL
 SSL_VERIFY_PEER=false
 SSL_VERIFY_HOST=false
