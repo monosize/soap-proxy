@@ -1,3 +1,9 @@
+## [1.0.8] - 2025-02-09
+
+### Changes
+- Add SSL verification support to WsdlHandler tests 
+-  Update Readme's
+
 ## [1.0.7] - 2025-02-09
 
 ### Changes
