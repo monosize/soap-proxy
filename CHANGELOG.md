@@ -1,3 +1,9 @@
+## [1.0.4] - 2025-02-09
+
+### Changes
+- Remove custom Logger implementation. Frank Rakow Moments ago
+- Adjust logging levels based on PROXYDEBUG environment variable Frank Rakow Moments ago
+
 ## [1.0.3] - 2025-02-09
 
 ### Changes
