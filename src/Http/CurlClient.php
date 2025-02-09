@@ -10,8 +10,11 @@ use RuntimeException;
 class CurlClient
 {
     private \CurlHandle $handle;
+
     private string $url;
+
     private LoggerInterface $logger;
+
     private array $defaultOptions = [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_SSL_VERIFYPEER => false,
@@ -43,7 +46,7 @@ class CurlClient
 
     public function setOptions(array $options): self
     {
-        if (!isset($options[CURLOPT_HTTPHEADER])) {
+        if (! isset($options[CURLOPT_HTTPHEADER])) {
             $options[CURLOPT_HTTPHEADER] = [];
         }
         $options[CURLOPT_HTTPHEADER][] = 'Connection: keep-alive';
@@ -53,7 +56,7 @@ class CurlClient
 
         $this->logger->debug('Setting cURL options', [
             'url' => $this->url,
-            'headers' => $options[CURLOPT_HTTPHEADER]
+            'headers' => $options[CURLOPT_HTTPHEADER],
         ]);
 
         return $this;
@@ -68,10 +71,14 @@ class CurlClient
             $error = curl_error($this->handle);
             $this->logger->error('cURL Error', [
                 'error' => $error,
-                'curlInfo' => curl_getinfo($this->handle)
+                'curlInfo' => curl_getinfo($this->handle),
             ]);
+
             throw new RuntimeException('cURL Error: ' . $error);
         }
+
+        // We know $response is string at this point since false case is handled above
+        assert(is_string($response));
 
         // Store successful connection in pool
         $host = parse_url($this->url, PHP_URL_HOST);
