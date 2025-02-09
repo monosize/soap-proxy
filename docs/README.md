@@ -56,7 +56,6 @@ $proxy->handle();
 - [Configuration](configuration.md)
 - [Usage](usage.md)
 - [Troubleshooting](troubleshooting.md)
-- [Development](development.md)
 
 ## Support
 

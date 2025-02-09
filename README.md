@@ -54,7 +54,6 @@ The full documentation can be found in the [docs](docs) directory:
 - [Configuration](docs/configuration.md)
 - [Usage](docs/usage.md)
 - [Troubleshooting](docs/troubleshooting.md)
-- [Development](docs/development.md)
 
 ## System Requirements
 
@@ -68,7 +67,7 @@ If you encounter issues or have questions, please create an issue in the [GitHub
 
 ## Contribution
 
-Contributions are welcome! Please read our [development guidelines](docs/development.md) for details.
+Contributions are welcome!
 
 ## License
 
