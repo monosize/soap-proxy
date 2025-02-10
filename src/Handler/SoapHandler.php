@@ -53,8 +53,18 @@ class SoapHandler
 
         try {
             $response = $curl->execute();
+            $httpCode = $curl->getHttpCode();
 
-            if ($curl->getHttpCode() === 200 && $this->isValidXml($response)) {
+            // Log the SOAP response
+            $this->logger->debug('SOAP Response', [
+                'http_code' => $httpCode,
+                'content_length' => strlen($response),
+                'is_valid_xml' => $this->isValidXml($response),
+                'soap_version' => $soapVersion,
+                'response_content' => $response,
+            ]);
+
+            if ($httpCode === 200 && $this->isValidXml($response)) {
                 $this->sendResponse($response, $soapVersion);
             } else {
                 throw new RuntimeException('Invalid SOAP response');
@@ -66,9 +76,7 @@ class SoapHandler
 
     private function determineSoapVersion(): string
     {
-        return isset($_SERVER['CONTENT_TYPE']) &&
-        str_contains($_SERVER['CONTENT_TYPE'], 'application/soap+xml')
-            ? '1.2' : '1.1';
+        return isset($_SERVER['CONTENT_TYPE']) && str_contains($_SERVER['CONTENT_TYPE'], 'application/soap+xml') ? '1.2' : '1.1';
     }
 
     private function extractSoapAction(string $soapVersion, string $rawPost): string
@@ -79,10 +87,7 @@ class SoapHandler
 
         $doc = new DOMDocument();
         if (@$doc->loadXML($rawPost)) {
-            $actionNodes = $doc->getElementsByTagNameNS(
-                'http://www.w3.org/2005/08/addressing',
-                'Action'
-            );
+            $actionNodes = $doc->getElementsByTagNameNS('http://www.w3.org/2005/08/addressing', 'Action');
 
             return $actionNodes->length > 0 ? $actionNodes->item(0)->nodeValue : '';
         }

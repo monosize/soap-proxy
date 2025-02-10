@@ -67,8 +67,13 @@ class WsdlHandler
 
                 // Store valid WSDL in cache
                 $this->cache->store($targetUrl, $wsdlContent);
-                $this->logger->debug('Fresh WSDL fetched and cached');
-
+                // Log the WSDL response
+                $this->logger->debug('WSDL Response', [
+                    'content_length' => strlen($wsdlContent),
+                    'http_code' => $httpCode,
+                    'is_valid' => $this->isValidWsdl($wsdlContent),
+                    'response_content' => $wsdlContent,
+                ]);
             } finally {
                 if (isset($curl)) {
                     $curl->close();
