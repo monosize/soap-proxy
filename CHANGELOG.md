@@ -1,3 +1,19 @@
+## [1.0.12] - 2025-02-10
+
+### Changes
+- Log SOAP and WSDL responses with detailed debug information.
+
+## [1.0.11] - 2025-02-10
+
+### Changes
+- Refactor WSDL request detection logic.
+
+## [1.0.10] - 2025-02-10
+
+### Changes
+- Add missing newlines for improved readability
+- Add configurable proxy path to SoapProxy and related classes 
+
 ## [1.0.9] - 2025-02-09
 
 ### Changes
