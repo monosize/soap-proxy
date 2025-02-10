@@ -29,8 +29,13 @@ class SoapProxyRequest
 
     private function determineWsdlRequest(): bool
     {
-        return str_contains($this->requestUri, '?wsdl')
-            && ($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST';
+        $requestMethod = $_SERVER['REQUEST_METHOD'] ?? '';
+        if ($requestMethod === 'POST') {
+            return false;
+        }
+
+        return str_contains($this->requestUri, '?wsdl') ||
+               str_contains($this->requestUri, '?singleWsdl');
     }
 
     private function buildTargetUrl(): string
