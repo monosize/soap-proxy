@@ -16,9 +16,12 @@ class SoapProxyRequest
 
     private string $targetUrl;
 
-    public function __construct(string $targetHost)
+    private string $proxyPath;
+
+    public function __construct(string $targetHost, string $proxyPath = '/soap-proxy')
     {
         $this->targetHost = $targetHost;
+        $this->proxyPath = $proxyPath;
         $this->requestUri = $_SERVER['REQUEST_URI'] ?? '';
         $this->isWsdlRequest = $this->determineWsdlRequest();
         $this->targetUrl = $this->buildTargetUrl();
@@ -32,7 +35,7 @@ class SoapProxyRequest
 
     private function buildTargetUrl(): string
     {
-        $targetPath = str_replace('/soap-proxy', '', $this->requestUri);
+        $targetPath = str_replace($this->proxyPath, '', $this->requestUri);
 
         return rtrim($this->targetHost, '/') . $targetPath;
     }

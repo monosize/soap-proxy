@@ -13,6 +13,7 @@ $projectRoot = dirname(__DIR__);
 $envPath = $projectRoot;
 $cacheDir = $projectRoot . '/var/cache/wsdl';
 $logFile = $projectRoot . '/var/log/soap-proxy.log';
+$proxyPath = '/soap-proxy'; // Configure the proxy path here
 
 // Create logger with file rotation
 $logger = new Logger('soap-proxy');
@@ -20,9 +21,10 @@ $logger->pushHandler(new RotatingFileHandler(
     $logFile,
     30
 ));
+
 try {
     // Create and configure SOAP proxy
-    $proxy = SoapProxy::createFromEnv($logger, $cacheDir, $envPath);
+    $proxy = SoapProxy::createFromEnv($logger, $cacheDir, $proxyPath, $envPath);
 
     // Handle request
     $proxy->handle();

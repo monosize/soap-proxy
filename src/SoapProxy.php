@@ -16,29 +16,37 @@ use RuntimeException;
 class SoapProxy
 {
     private LoggerInterface $logger;
+
     private string $targetHost;
+
     private bool $debug;
+
     private WsdlCache $cache;
+
     private Environment $environment;
+
+    private string $proxyPath;
 
     public function __construct(
         LoggerInterface $logger,
         string $targetHost,
         WsdlCache $cache,
         Environment $environment,
+        string $proxyPath = '/soap-proxy',
         bool $debug = false
     ) {
         $this->logger = $logger;
         $this->targetHost = $targetHost;
         $this->cache = $cache;
         $this->environment = $environment;
+        $this->proxyPath = $proxyPath;
         $this->debug = $debug;
     }
 
     public function handle(): void
     {
         try {
-            $request = new SoapProxyRequest($this->targetHost);
+            $request = new SoapProxyRequest($this->targetHost, $this->proxyPath);
 
             if ($request->isWsdl()) {
                 $handler = new WsdlHandler(
@@ -68,7 +76,7 @@ class SoapProxy
             'trace' => $e->getTraceAsString(),
         ]);
 
-        if (!headers_sent()) {
+        if (! headers_sent()) {
             header('HTTP/1.1 500 Internal Server Error');
             header('Content-Type: text/plain; charset=utf-8');
         }
@@ -81,8 +89,12 @@ class SoapProxy
         }
     }
 
-    public static function createFromEnv(LoggerInterface $logger, string $cacheDir, ?string $envPath = null): self
-    {
+    public static function createFromEnv(
+        LoggerInterface $logger,
+        string $cacheDir,
+        string $proxyPath = '/soap-proxy',
+        ?string $envPath = null
+    ): self {
         $env = new Environment($envPath);
         $targetHost = $env->get('TRANSFERHOST');
 
@@ -107,6 +119,7 @@ class SoapProxy
             $targetHost,
             $cache,
             $env,
+            $proxyPath,
             $debugMode
         );
     }
