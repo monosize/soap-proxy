@@ -14,9 +14,13 @@ use Psr\Log\LoggerInterface;
 class WsdlHandlerTest extends TestCase
 {
     private $request;
+
     private $logger;
+
     private $cache;
+
     private $environment;
+
     private $handler;
 
     protected function setUp(): void
@@ -31,7 +35,7 @@ class WsdlHandlerTest extends TestCase
             ->method('get')
             ->willReturnMap([
                 ['SSL_VERIFY_PEER', 'false', 'false'],
-                ['SSL_VERIFY_HOST', 'false', 'false']
+                ['SSL_VERIFY_HOST', 'false', 'false'],
             ]);
 
         $this->handler = new WsdlHandler(
@@ -93,7 +97,7 @@ class WsdlHandlerTest extends TestCase
             ->method('get')
             ->willReturnMap([
                 ['SSL_VERIFY_PEER', 'false', 'true'],
-                ['SSL_VERIFY_HOST', 'false', 'true']
+                ['SSL_VERIFY_HOST', 'false', 'true'],
             ]);
 
         $handler = new WsdlHandler(
